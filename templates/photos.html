@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block content %}
+<h2>Photos</h2><p>Memories from past events.</p>
+{% if service_error %}<div class="alert alert-warning">{{ service_error }}</div>{% endif %}
+{% for photo in photos %}
+<div class="card" style="max-width:560px">
+  <img class="card-img-top" src="{{ photo.pic_url }}" alt="Event in {{ photo.event_city }}" style="min-height:180px;object-fit:contain;background:#eef1f4">
+  <div class="card-body"><h5>{{ photo.event_city }}, {{ photo.event_state }}</h5>
+  <p>{{ photo.event_country }} · {{ photo.event_date }}</p></div>
+</div>
+{% endfor %}
+{% if page_obj %}<nav class="mt-4" aria-label="Photo pages">
+{% if page_obj.has_previous %}<a class="btn btn-outline-secondary" href="?page={{ page_obj.previous_page_number }}">Previous</a>{% endif %}
+<span class="mx-3">Photo {{ page_obj.number }} of {{ page_obj.paginator.count }}</span>
+{% if page_obj.has_next %}<a class="btn btn-outline-secondary" href="?page={{ page_obj.next_page_number }}">Next</a>{% endif %}
+</nav>{% endif %}
+{% endblock %}
+

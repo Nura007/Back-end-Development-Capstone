@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block content %}
+<h2>Songs</h2><p>Select a song to read its lyrics.</p>
+{% if service_error %}<div class="alert alert-warning">{{ service_error }}</div>{% endif %}
+{% for song in songs %}
+<div class="row section-bg mb-3 p-3">
+  <button class="btn btn-link text-start" data-bs-toggle="modal" data-bs-target="#song{{ song.id }}">{{ song.title }}</button>
+  <div class="modal fade" id="song{{ song.id }}" tabindex="-1" aria-labelledby="songTitle{{ song.id }}" aria-hidden="true">
+    <div class="modal-dialog"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="songTitle{{ song.id }}">Lyrics — {{ song.title }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><p style="white-space:pre-line">{{ song.lyrics }}</p></div>
+    </div></div>
+  </div>
+</div>
+{% endfor %}{% endblock %}
+

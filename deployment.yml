@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: django-data
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: djangoserver
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: djangoserver
+  template:
+    metadata:
+      labels:
+        app: djangoserver
+    spec:
+      securityContext:
+        fsGroup: 1001
+      containers:
+        - name: djangoserver
+          image: ${DJANGO_IMAGE}
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DJANGO_DEBUG
+              value: "0"
+            - name: DJANGO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: DJANGO_SECRET_KEY
+            - name: DJANGO_ALLOWED_HOSTS
+              value: "${APP_HOST},localhost,127.0.0.1"
+            - name: DJANGO_CSRF_TRUSTED_ORIGINS
+              value: "https://${APP_HOST}"
+            - name: SONGS_API_URL
+              value: "${SONGS_API_URL}"
+            - name: PICTURES_API_URL
+              value: "${PICTURES_API_URL}"
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: django-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: djangoserver
+spec:
+  selector:
+    app: djangoserver
+  ports:
+    - port: 8000
+      targetPort: 8000
+
