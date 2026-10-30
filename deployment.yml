@@ -4,6 +4,7 @@ metadata:
   name: django-data
 spec:
   accessModes: [ReadWriteOnce]
+  storageClassName: ${STORAGE_CLASS_NAME}
   resources:
     requests:
       storage: 1Gi
@@ -24,8 +25,6 @@ spec:
       labels:
         app: djangoserver
     spec:
-      securityContext:
-        fsGroup: 1001
       containers:
         - name: djangoserver
           image: ${DJANGO_IMAGE}
